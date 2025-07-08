@@ -249,8 +249,7 @@ router.get('/lead-categories', authenticate, async (req, res) => {
     const categories = await LeadCategory.find({ userId: req.user._id }).sort({ name: 1 });
     res.json(categories.map(cat => ({
       id: cat._id.toString(),
-      name: cat.name,
-      userId: cat.userId.toString()
+      name: cat.name
     })));
   } catch (error) {
     console.error('Error fetching lead categories:', error);
@@ -262,22 +261,14 @@ router.get('/lead-categories', authenticate, async (req, res) => {
 router.post('/lead-categories', authenticate, async (req, res) => {
   try {
     const { name } = req.body;
-    
-    if (!name || !name.trim()) {
-      return res.status(400).json({ message: 'Category name is required' });
-    }
-
     const category = new LeadCategory({
-      name: name.trim(),
+      name,
       userId: req.user._id
     });
-    
     await category.save();
-    
     res.status(201).json({
       id: category._id.toString(),
-      name: category.name,
-      userId: category.userId.toString()
+      name: category.name
     });
   } catch (error) {
     console.error('Error creating lead category:', error);
@@ -289,16 +280,7 @@ router.post('/lead-categories', authenticate, async (req, res) => {
 router.delete('/lead-categories/:id', authenticate, async (req, res) => {
   try {
     const { id } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: 'Invalid category ID format' });
-    }
-
-    const category = await LeadCategory.findOneAndDelete({ _id: id, userId: req.user._id });
-    if (!category) {
-      return res.status(404).json({ message: 'Category not found' });
-    }
-
+    await LeadCategory.findOneAndDelete({ _id: id, userId: req.user._id });
     res.json({ message: 'Category deleted successfully' });
   } catch (error) {
     console.error('Error deleting lead category:', error);
@@ -1175,7 +1157,8 @@ router.post('/leads/csv-import', authenticate, upload.single('csvFile'), async (
                 industry: row[parsedMapping.industry] || '',
                 website: row[parsedMapping.website] || '',
                 source: row[parsedMapping.source] || 'CSV Import',
-                tags: leadTags,
+                categoryId: tags ? tags.split(',')[0]?.trim() : '',
+                tags: leadTags.slice(1),
                 userId: req.user._id
               };
 
