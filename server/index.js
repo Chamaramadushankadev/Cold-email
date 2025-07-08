@@ -14,7 +14,7 @@ import googleAlertsRoutes from './routes/googleAlerts.js';
 import scriptsRoutes from './routes/scripts.js';
 import emailRoutes from './routes/email.js';
 import coldEmailRoutes from './routes/coldEmail.js';
-import coldEmailSystemRoutes from './routes/coldEmailSystem.js';
+import coldEmailSystemRoutes from './routes/coldEmailSystem/index.js';
 import analyticsRoutes from './routes/analytics.js';
 import youtubeChannelsRoutes from './routes/youtubeChannels.js';
 import youtubeScriptsRoutes from './routes/youtubeScripts.js';
