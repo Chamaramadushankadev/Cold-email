@@ -55,7 +55,28 @@ const transformCampaign = (campaign) => {
     leadIds: campaignObj.leadIds.map(id => id.toString())
   };
 };
+// Lead Categories
+router.get('/categories', authenticate, async (req, res) => {
+  try {
+    const categories = await LeadCategory.find({ userId: req.user._id });
+    res.json(categories);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
+router.post('/categories', authenticate, async (req, res) => {
+  try {
+    const category = new LeadCategory({
+      name: req.body.name,
+      userId: req.user._id
+    });
+    await category.save();
+    res.status(201).json(category);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
 // ==================== EMAIL ACCOUNTS ====================
 
 // Get all email accounts
