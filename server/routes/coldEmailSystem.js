@@ -71,6 +71,11 @@ router.post('/accounts', authenticate, async (req, res) => {
         port: smtpSettings?.port || 587,
         username: smtpSettings?.username || email,
         password: smtpSettings?.password,
+      }
+    }
+  }
+}
+)
 export default coldEmailSystemRoutes;
 
 // ==================== EMAIL TEMPLATES ====================
