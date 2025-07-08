@@ -165,6 +165,10 @@ const leadSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  categoryId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'LeadCategory'
+  },
   lastContactedAt: Date,
   notes: {
     type: String,

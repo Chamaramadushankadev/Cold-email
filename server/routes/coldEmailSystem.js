@@ -1158,7 +1158,7 @@ router.post('/leads/csv-import', authenticate, upload.single('csvFile'), async (
                 industry: row[parsedMapping.industry] || '',
                 website: row[parsedMapping.website] || '',
                 source: row[parsedMapping.source] || 'CSV Import',
-                categoryId: tags ? tags.split(',')[0]?.trim() : '',
+                categoryId: categoryId && categoryId.trim() ? categoryId.trim() : null,
                 tags: leadTags.slice(1),
                 userId: req.user._id
               };

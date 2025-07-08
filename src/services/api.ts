@@ -163,7 +163,7 @@ export const coldEmailAPI = {
     const formData = new FormData();
     formData.append('csvFile', file);
     formData.append('mapping', JSON.stringify(mapping));
-    if (tags) formData.append('tags', tags);
+    if (tags) formData.append('categoryId', tags);
     return api.post('/cold-email-system/leads/csv-import', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
