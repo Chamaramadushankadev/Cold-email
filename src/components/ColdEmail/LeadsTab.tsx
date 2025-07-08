@@ -34,7 +34,7 @@ export const LeadsTab: React.FC<LeadsTabProps> = ({
                          lead.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          lead.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          lead.company?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = filterCategory === 'all' || lead.category === filterCategory;
+    const matchesCategory = filterCategory === 'all' || lead.categoryId === filterCategory;
     const matchesStatus = filterStatus === 'all' || lead.status === filterStatus;
     return matchesSearch && matchesCategory && matchesStatus;
   });
@@ -49,7 +49,7 @@ export const LeadsTab: React.FC<LeadsTabProps> = ({
         jobTitle: formData.get('jobTitle') as string || '',
         industry: formData.get('industry') as string || '',
         website: formData.get('website') as string || '',
-        category: formData.get('category') as string || '',
+        categoryId: formData.get('category') as string || '',
         tags: (formData.get('tags') as string || '').split(',').map(t => t.trim()).filter(t => t),
         notes: formData.get('notes') as string || ''
       };
@@ -97,13 +97,13 @@ export const LeadsTab: React.FC<LeadsTabProps> = ({
   };
 
   const handleCsvImport = async () => {
-    if (!csvFile || !selectedCategory) {
-      showNotification('error', 'Please select a file and category');
+    if (!csvFile) {
+      showNotification('error', 'Please select a file');
       return;
     }
 
     try {
-      const response = await coldEmailAPI.importCsv(csvFile, csvMapping, selectedCategory);
+      const response = await coldEmailAPI.importCsv(csvFile, csvMapping, selectedCategory || '');
       showNotification('success', response.data.message);
       setShowImportCsv(false);
       setCsvFile(null);
@@ -288,7 +288,7 @@ export const LeadsTab: React.FC<LeadsTabProps> = ({
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">
-                      {lead.category || 'Uncategorized'}
+                      {leadCategories.find(cat => cat.id === lead.categoryId)?.name || 'Uncategorized'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -427,12 +427,12 @@ export const LeadsTab: React.FC<LeadsTabProps> = ({
                   <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
                   <select
                     name="category"
-                    defaultValue={editingLead?.category || selectedCategory || ''}
+                    defaultValue={editingLead?.categoryId || ''}
                     className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Select category</option>
                     {leadCategories.map(category => (
-                      <option key={category.id} value={category.id || category.name}>{category.name}</option>
+                      <option key={category.id} value={category.id}>{category.name}</option>
                     ))}
                   </select>
                 </div>
@@ -552,12 +552,11 @@ export const LeadsTab: React.FC<LeadsTabProps> = ({
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Assign to Category (Required)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Assign to Category (Optional)</label>
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
                     className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
                   >
                     <option value="">Select category</option>
                     {leadCategories.length > 0 && leadCategories.map(category => (
@@ -637,8 +636,7 @@ export const LeadsTab: React.FC<LeadsTabProps> = ({
               {csvPreview && (
                 <button
                   onClick={handleCsvImport}
-                  disabled={!selectedCategory}
-                  className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   Import Leads
                 </button>

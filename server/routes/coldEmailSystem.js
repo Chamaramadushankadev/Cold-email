@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import { EmailAccount, Lead, Campaign, EmailLog, WarmupEmail, InboxSync, EmailTemplate, InboxMessage, CsvImport } from '../models/ColdEmailSystem.js';
+import LeadCategory from '../models/LeadCategory.js';
 import { authenticate } from '../middleware/auth.js';
 import { sendEmail, syncInbox, generateWarmupContent, createTransporter } from '../services/emailService.js';
 import { scheduleWarmupEmails, scheduleCampaignEmails } from '../services/emailScheduler.js';
