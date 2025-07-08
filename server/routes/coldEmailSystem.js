@@ -249,7 +249,8 @@ router.get('/lead-categories', authenticate, async (req, res) => {
     const categories = await LeadCategory.find({ userId: req.user._id }).sort({ name: 1 });
     res.json(categories.map(cat => ({
       id: cat._id.toString(),
-      name: cat.name
+      name: cat.name,
+      userId: cat.userId.toString()
     })));
   } catch (error) {
     console.error('Error fetching lead categories:', error);
@@ -261,14 +262,22 @@ router.get('/lead-categories', authenticate, async (req, res) => {
 router.post('/lead-categories', authenticate, async (req, res) => {
   try {
     const { name } = req.body;
+    
+    if (!name || !name.trim()) {
+      return res.status(400).json({ message: 'Category name is required' });
+    }
+
     const category = new LeadCategory({
-      name,
+      name: name.trim(),
       userId: req.user._id
     });
+    
     await category.save();
+    
     res.status(201).json({
       id: category._id.toString(),
-      name: category.name
+      name: category.name,
+      userId: category.userId.toString()
     });
   } catch (error) {
     console.error('Error creating lead category:', error);
@@ -280,7 +289,16 @@ router.post('/lead-categories', authenticate, async (req, res) => {
 router.delete('/lead-categories/:id', authenticate, async (req, res) => {
   try {
     const { id } = req.params;
-    await LeadCategory.findOneAndDelete({ _id: id, userId: req.user._id });
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid category ID format' });
+    }
+
+    const category = await LeadCategory.findOneAndDelete({ _id: id, userId: req.user._id });
+    if (!category) {
+      return res.status(404).json({ message: 'Category not found' });
+    }
+
     res.json({ message: 'Category deleted successfully' });
   } catch (error) {
     console.error('Error deleting lead category:', error);
