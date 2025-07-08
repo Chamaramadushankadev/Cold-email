@@ -8,6 +8,7 @@ import multer from 'multer';
 import csv from 'csv-parser';
 import fs from 'fs';
 import path from 'path';
+import LeadCategory from '../models/LeadCategory.js';
 
 // Configure multer for CSV uploads
 const upload = multer({
@@ -235,6 +236,53 @@ router.post('/accounts/:id/test', authenticate, async (req, res) => {
     }
   } catch (error) {
     console.error('Error testing email account:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// ==================== LEAD CATEGORIES ====================
+
+// Get all lead categories
+router.get('/lead-categories', authenticate, async (req, res) => {
+  try {
+    const categories = await LeadCategory.find({ userId: req.user._id }).sort({ name: 1 });
+    res.json(categories.map(cat => ({
+      id: cat._id.toString(),
+      name: cat.name
+    })));
+  } catch (error) {
+    console.error('Error fetching lead categories:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Create lead category
+router.post('/lead-categories', authenticate, async (req, res) => {
+  try {
+    const { name } = req.body;
+    const category = new LeadCategory({
+      name,
+      userId: req.user._id
+    });
+    await category.save();
+    res.status(201).json({
+      id: category._id.toString(),
+      name: category.name
+    });
+  } catch (error) {
+    console.error('Error creating lead category:', error);
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Delete lead category
+router.delete('/lead-categories/:id', authenticate, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await LeadCategory.findOneAndDelete({ _id: id, userId: req.user._id });
+    res.json({ message: 'Category deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting lead category:', error);
     res.status(500).json({ message: error.message });
   }
 });

@@ -25,19 +25,17 @@ export const ColdEmailManager: React.FC = () => {
   const loadInitialData = async () => {
     try {
       setLoading(true);
-      const [accountsRes, leadsRes, campaignsRes] = await Promise.all([
+      const [accountsRes, leadsRes, campaignsRes, categoriesRes] = await Promise.all([
         coldEmailAPI.getAccounts(),
         coldEmailAPI.getLeads(),
-        coldEmailAPI.getCampaigns()
+        coldEmailAPI.getCampaigns(),
+        coldEmailAPI.getCategories()
       ]);
       
       setEmailAccounts(accountsRes.data || []);
       setLeads(leadsRes.data?.leads || []);
       setCampaigns(campaignsRes.data || []);
-      
-      // Extract unique categories from leads
-      const categories = [...new Set(leadsRes.data?.leads?.map((lead: any) => lead.category).filter(Boolean) || [])];
-      setLeadCategories(categories.map(cat => ({ id: cat, name: cat })));
+      setLeadCategories(categoriesRes.data || []);
     } catch (error) {
       console.error('Error loading data:', error);
       showNotification('error', 'Failed to load data');

@@ -123,8 +123,8 @@ export const LeadsTab: React.FC<LeadsTabProps> = ({
       const categoryName = formData.get('categoryName') as string;
       if (!categoryName.trim()) return;
 
-      const newCategory = { id: categoryName, name: categoryName };
-      setLeadCategories([...leadCategories, newCategory]);
+      const response = await coldEmailAPI.createCategory({ name: categoryName });
+      setLeadCategories([...leadCategories, response.data]);
       setShowAddCategory(false);
       showNotification('success', 'Category created successfully');
     } catch (error: any) {
@@ -136,8 +136,14 @@ export const LeadsTab: React.FC<LeadsTabProps> = ({
   const handleDeleteCategory = (categoryId: string) => {
     if (!window.confirm('Are you sure you want to delete this category?')) return;
     
-    setLeadCategories(leadCategories.filter(cat => cat.id !== categoryId));
-    showNotification('success', 'Category deleted successfully');
+    try {
+      await coldEmailAPI.deleteCategory(categoryId);
+      setLeadCategories(leadCategories.filter(cat => cat.id !== categoryId));
+      showNotification('success', 'Category deleted successfully');
+    } catch (error: any) {
+      console.error('Error deleting category:', error);
+      showNotification('error', 'Failed to delete category');
+    }
   };
 
   const getStatusColor = (status: string) => {
