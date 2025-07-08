@@ -10,6 +10,7 @@ import csv from 'csv-parser';
 import fs from 'fs';
 import path from 'path';
 import LeadCategory from '../models/LeadCategory.js';
+import LeadCategory from '../models/LeadCategory.js';
 
 // Configure multer for CSV uploads
 const upload = multer({
